@@ -47,21 +47,21 @@ import org.apache.velocity.runtime.parser.node.SimpleNode;
 
 /**
  * Holds the template manager.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class TemplateManager {
 
-    private String input;
+    private final String input;
     private String output;
-    private HashMap content;
-    private String template;
+    private final HashMap content;
+    private final String template;
 
     /**
      * Constructor.
-     * 
+     *
      * @param input The input file name.
      * @param content The mappings.
      * @param template The template.
@@ -70,12 +70,14 @@ public class TemplateManager {
         this.input = input;
         this.content = content;
         this.template = template;
-        this.output = getBasename(input).concat(".new").concat(getFiletype(input).isEmpty() ? "" : ".".concat(getFiletype(input)));
+        this.output = getBasename(input).concat(".new").
+                concat(getFiletype(input).isEmpty() ? "" : ".".
+                        concat(getFiletype(input)));
     }
 
     /**
      * Sets the output file name.
-     * 
+     *
      * @param output The output file name.
      */
     public void setOutput(String output) {
@@ -84,22 +86,23 @@ public class TemplateManager {
 
     /**
      * Generates the template.
-     * 
+     *
      * @throws DuckityException Exception is thrown in case of an error.
      */
     public void generate() throws DuckityException {
-        RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
+        RuntimeServices services = RuntimeSingleton.getRuntimeServices();
         StringReader reader = new StringReader(template);
         SimpleNode node = null;
         try {
-            node = runtimeServices.parse(reader, "Duckity");
+            node = services.parse(reader, "Duckity");
         } catch (ParseException pe) {
-            throw new DuckityException("An error occurred while trying to parse the template: " + pe.getMessage());
+            throw new DuckityException("An error occurred while trying to "
+                    + "parse the template: " + pe.getMessage());
         }
-        Template velocityTemplate = new Template();
-        velocityTemplate.setRuntimeServices(runtimeServices);
-        velocityTemplate.setData(node);
-        velocityTemplate.initDocument();
+        Template vtemplate = new Template();
+        vtemplate.setRuntimeServices(services);
+        vtemplate.setData(node);
+        vtemplate.initDocument();
         VelocityContext context = new VelocityContext();
         for (Object key : content.keySet()) {
             context.put((String) key, content.get(key));
@@ -107,45 +110,48 @@ public class TemplateManager {
         context.put("math", new MyMathTool());
 
         try {
-            FileWriter fw = new FileWriter(output);
-            velocityTemplate.merge(context, fw);
-            fw.close();
-        } catch (IOException e) {
-            throw new DuckityException("An IO error occurred while trying to read from '".concat(output).concat("'."));
+            FileWriter writer = new FileWriter(output);
+            vtemplate.merge(context, writer);
+            writer.close();
+        } catch (IOException nothandled) {
+            throw new DuckityException("An IO error occurred while trying "
+                    + "to read from '".concat(output).concat("'."));
         }
     }
 
     /**
      * Gets the file base name.
-     * 
-     * @param f The file name.
+     *
+     * @param ref The file name.
      * @return The file base name.
      */
-    private String getBasename(String f) {
+    private String getBasename(String ref) {
         try {
-            f = (new File(f)).getName();
-            int i = f.lastIndexOf(".") != -1 ? f.lastIndexOf(".") : f.length();
-            return f.substring(0, i);
-        } catch (Exception exception) {
+            ref = (new File(ref)).getName();
+            int index = ref.lastIndexOf(".") != -1 ?
+                    ref.lastIndexOf(".") : ref.length();
+            return ref.substring(0, index);
+        } catch (Exception nothandled) {
             return "";
         }
     }
 
     /**
      * Gets the file type.
-     * 
-     * @param f The file name.
+     *
+     * @param ref The file name.
      * @return The file type.
      */
-    private String getFiletype(String f) {
+    private String getFiletype(String ref) {
         try {
-            f = (new File(f)).getName();
-            if (f.lastIndexOf(".") != -1) {
-                return f.substring(f.lastIndexOf(".") + 1, f.length());
+            ref = (new File(ref)).getName();
+            if (ref.lastIndexOf(".") != -1) {
+                return ref.substring(ref.lastIndexOf(".") + 1, ref.length());
             }
             return "";
-        } catch (Exception exception) {
+        } catch (Exception nothandled) {
             return "";
         }
     }
+    
 }

@@ -46,70 +46,81 @@ import org.apache.commons.lang.WordUtils;
 
 /**
  * Main class.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class Duckity {
 
     /**
      * Main method.
-     * 
+     *
      * @param args The command line arguments.
      */
     public static void main(String[] args) {
 
-        int exitStatus = 0;
-        
+        int status = 0;
+
         try {
             drawLogo();
-            CommandLineAnalyzer commanLineAnalyzer = new CommandLineAnalyzer(args);
-            if (commanLineAnalyzer.parse()) {
-            
-                FileParser fileParser = new FileParser();
-                fileParser.load(commanLineAnalyzer.getInput());
-                
+            CommandLineAnalyzer analyzer = new CommandLineAnalyzer(args);
+            if (analyzer.parse()) {
+
+                FileParser parser = new FileParser();
+                parser.load(analyzer.getInput());
+
                 List<ReaderMapping> mapping;
-                
-                if (!fileParser.isRawTemplate()) {
-                    DatasourceExtractor datasourceExtractor = new DatasourceExtractor();
-                    datasourceExtractor.parse(fileParser.getHeader());
-                    mapping = datasourceExtractor.getMapping();
-                }
-                else {
+
+                if (!parser.isRaw()) {
+                    DatasourceExtractor extractor = new DatasourceExtractor();
+                    extractor.parse(parser.getHeader());
+                    mapping = extractor.getMapping();
+                } else {
                     mapping = new ArrayList<ReaderMapping>();
                 }
-                
-                mapping.addAll(commanLineAnalyzer.getAdditionalMapping());
 
-                FileLoader fileLoader = new FileLoader(mapping);
-                fileLoader.load();
-                TemplateManager templateManager = new TemplateManager(commanLineAnalyzer.getInput(), fileLoader.getContent(), fileParser.getTemplate());
-                
-                if (commanLineAnalyzer.getOutput() != null) {
-                    templateManager.setOutput(commanLineAnalyzer.getOutput());
+                mapping.addAll(analyzer.getMappings());
+
+                FileLoader loader = new FileLoader(mapping);
+                loader.load();
+                TemplateManager manager = new TemplateManager(
+                        analyzer.getInput(),
+                        loader.getContent(),
+                        parser.getTemplate()
+                );
+
+                if (analyzer.getOutput() != null) {
+                    manager.setOutput(analyzer.getOutput());
                 }
-                templateManager.generate();
+
+                manager.generate();
                 System.out.println("Done.");
             }
+        } catch (DuckityException duckityException) {
+            System.out.println(
+                    WordUtils.wrap(
+                            duckityException.getMessage(),
+                            60,
+                            "\n",
+                            true
+                    )
+            );
+
+            status = 1;
         }
-        catch (DuckityException duckityException) {
-            System.out.println(WordUtils.wrap(duckityException.getMessage(), 60, "\n", true));
-            exitStatus = 1;
-        }
-        
-        System.exit(exitStatus);
-        
+
+        System.exit(status);
+
     }
-    
+
     /**
      * Prints the application logo.
      */
     private static void drawLogo() {
-         System.out.println("  _|      _ |  o _|_    ");
-         System.out.println(" (_| |_| (_ |< |  |_ \\/ ");
-         System.out.println("                     /  ");
+        System.out.println("  _|      _ |  o _|_    ");
+        System.out.println(" (_| |_| (_ |< |  |_ \\/ ");
+        System.out.println("                     /  ");
     }
-    
+
 }

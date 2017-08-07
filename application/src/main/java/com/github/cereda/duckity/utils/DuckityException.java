@@ -35,9 +35,9 @@ package com.github.cereda.duckity.utils;
 
 /**
  * The exception model.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class DuckityException extends Exception {
@@ -58,10 +58,9 @@ public class DuckityException extends Exception {
         super(cause);
     }
 
-    public DuckityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public DuckityException(String message, Throwable cause,
+            boolean suppress, boolean stack) {
+        super(message, cause, suppress, stack);
     }
-    
-    
-    
+
 }

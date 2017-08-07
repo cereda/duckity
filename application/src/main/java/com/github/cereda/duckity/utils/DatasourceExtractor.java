@@ -47,14 +47,14 @@ import org.json.simple.parser.ParseException;
 
 /**
  * Maps the datasource into the model.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class DatasourceExtractor {
 
-    private List<ReaderMapping> mapping;
+    private final List<ReaderMapping> mapping;
 
     /**
      * Constructor.
@@ -65,14 +65,14 @@ public class DatasourceExtractor {
 
     /**
      * Parses the datasources.
-     * 
+     *
      * @param header The input header.
-     * @throws DuckityException Exception is throw in case of bad arguments
-     * ou invalid extensions.
+     * @throws DuckityException Exception is throw in case of bad arguments ou
+     * invalid extensions.
      */
     public void parse(String header) throws DuckityException {
         JSONParser parser = new JSONParser();
-        ContainerFactory containerFactory = new ContainerFactory() {
+        ContainerFactory factory = new ContainerFactory() {
             public List creatArrayContainer() {
                 return new LinkedList();
             }
@@ -82,22 +82,24 @@ public class DatasourceExtractor {
             }
         };
 
-        Map jsonHeader = null;
+        Map jheader = null;
         try {
-            jsonHeader = (Map) parser.parse(header, containerFactory);
+            jheader = (Map) parser.parse(header, factory);
         } catch (ParseException pe) {
-            throw new DuckityException("An error occurred while trying to parse the JSON header.");
+            throw new DuckityException("An error occurred while trying to "
+                    + "parse the JSON header.");
         }
 
-        ReaderMapping rm;
+        ReaderMapping reader;
 
-        if ((jsonHeader.size() == 1) && (jsonHeader.containsKey("datasources"))) {
-            Object values = jsonHeader.get("datasources");
+        if ((jheader.size() == 1) && (jheader.containsKey("datasources"))) {
+            Object values = jheader.get("datasources");
             if (values instanceof LinkedList) {
                 for (Object value : (LinkedList) values) {
                     if (value instanceof Map) {
                         Map map = (Map) value;
                         Set keys = (Set) map.keySet();
+
                         Set validKeys = new HashSet();
                         validKeys.add("identifier");
                         validKeys.add("file");
@@ -107,97 +109,124 @@ public class DatasourceExtractor {
                         validKeys.add("line");
                         validKeys.add("strictquote");
                         validKeys.add("ignoreleadingwhitespace");
-                        if (CollectionUtils.subtract(keys, validKeys).isEmpty()) {
-                            if ((keys.contains("identifier") && (keys.contains("file")))) {
-                                rm = new ReaderMapping();
-                                rm.setCSV(true);
-                                if (map.get("identifier") instanceof String) {
-                                    rm.setIdentifier((String) map.get("identifier"));
-                                    if (map.get("file") instanceof String) {
-                                        rm.setFile((String) map.get("file"));
 
-                                        if (((String) map.get("file")).toLowerCase().endsWith(".csv")) {
-                                            rm.setCSV(true);
+                        if (CollectionUtils.
+                                subtract(keys, validKeys).isEmpty()) {
+                            if ((keys.contains("identifier")
+                                    && (keys.contains("file")))) {
+                                reader = new ReaderMapping();
+                                reader.setCSV(true);
+                                if (map.get("identifier") instanceof String) {
+                                    reader.setIdentifier(
+                                            (String) map.get("identifier"));
+                                    if (map.get("file") instanceof String) {
+                                        reader.setFile(
+                                                (String) map.get("file"));
+
+                                        if (((String) map.get("file")).
+                                                toLowerCase().
+                                                endsWith(".csv")) {
+                                            reader.setCSV(true);
 
                                             if (map.get("separator") != null) {
                                                 if (map.get("separator") instanceof String) {
-                                                    rm.setSeparator((String) map.get("separator"));
+                                                    reader.setSeparator(
+                                                            (String) map.get("separator"));
                                                 } else {
-                                                    throw new DuckityException("The 'separator' argument has to be a string.");
+                                                    throw new DuckityException("The 'separator' argument "
+                                                            + "has to be a string.");
                                                 }
                                             }
                                             if (map.get("quotechar") != null) {
                                                 if (map.get("quotechar") instanceof String) {
-                                                    rm.setQuotechar((String) map.get("quotechar"));
+                                                    reader.setQuotechar(
+                                                            (String) map.get("quotechar"));
                                                 } else {
-                                                    throw new DuckityException("The 'quotechar' argument has to be a string.");
+                                                    throw new DuckityException("The 'quotechar' argument "
+                                                            + "has to be a string.");
                                                 }
                                             }
                                             if (map.get("escape") != null) {
                                                 if (map.get("escape") instanceof String) {
-                                                    rm.setEscape((String) map.get("escape"));
+                                                    reader.setEscape(
+                                                            (String) map.get("escape"));
                                                 } else {
-                                                    throw new DuckityException("The 'escape' argument has to be a string.");
+                                                    throw new DuckityException("The 'escape' argument "
+                                                            + "has to be a string.");
                                                 }
                                             }
                                             if (map.get("line") != null) {
                                                 if (map.get("line") instanceof Integer) {
-                                                    rm.setLine((Integer) map.get("line"));
+                                                    reader.setLine(
+                                                            (Integer) map.get("line"));
                                                 } else {
-                                                    throw new DuckityException("The 'line' argument has to be a integer.");
+                                                    throw new DuckityException("The 'line' argument "
+                                                            + "has to be a integer.");
                                                 }
                                             }
                                             if (map.get("strictquote") != null) {
                                                 if (map.get("strictquote") instanceof Boolean) {
-                                                    rm.setStrictquote((Boolean) map.get("strictquote"));
+                                                    reader.setStrictquote(
+                                                            (Boolean) map.get("strictquote"));
                                                 } else {
-                                                    throw new DuckityException("The 'strictquote' argument has to be a boolean.");
+                                                    throw new DuckityException("The 'strictquote' argument "
+                                                            + "has to be a boolean.");
                                                 }
                                             }
                                             if (map.get("ignoreleadingwhitespace") != null) {
                                                 if (map.get("ignoreleadingwhitespace") instanceof Boolean) {
-                                                    rm.setIgnoreleadingwhitespace((Boolean) map.get("ignoreleadingwhitespace"));
+                                                    reader.setIgnoreleadingwhitespace(
+                                                            (Boolean) map.get("ignoreleadingwhitespace"));
                                                 } else {
-                                                    throw new DuckityException("The 'ignoreleadingwhitespace' argument has to be a boolean.");
+                                                    throw new DuckityException("The 'ignoreleadingwhitespace' "
+                                                            + "argument has to be a boolean.");
                                                 }
                                             }
                                         } else {
-                                            if (((String) map.get("file")).toLowerCase().endsWith(".json")) {
-                                                rm.setCSV(false);
-                                            }
-                                            else {
-                                                throw new DuckityException("Only files with '.csv' or '.json' extensions are supported.");
+                                            if (((String) map.get("file")).
+                                                    toLowerCase().
+                                                    endsWith(".json")) {
+                                                reader.setCSV(false);
+                                            } else {
+                                                throw new DuckityException("Only files with '.csv' or '.json' "
+                                                        + "extensions are supported.");
                                             }
                                         }
-
-                                        mapping.add(rm);
+                                        mapping.add(reader);
                                     } else {
-                                        throw new DuckityException("The 'file' argument has to be a boolean.");
+                                        throw new DuckityException("The 'file' argument "
+                                                + "has to be a string.");
                                     }
                                 } else {
-                                    throw new DuckityException("The 'identifier' argument has to be a boolean.");
+                                    throw new DuckityException("The 'identifier' argument "
+                                            + "has to be a string.");
                                 }
                             } else {
-                                throw new DuckityException("Both 'file' and 'identifier' arguments are mandatory.");
+                                throw new DuckityException("Both 'file' and 'identifier' "
+                                        + "arguments are mandatory.");
                             }
                         } else {
-                            throw new DuckityException("There are invalid arguments.");
+                            throw new DuckityException("There are invalid "
+                                    + "arguments.");
                         }
                     } else {
-                        throw new DuckityException("Every element from 'datasources' should be a map.");
+                        throw new DuckityException("Every element from "
+                                + "'datasources' should be a map.");
                     }
                 }
             } else {
-                throw new DuckityException("The 'datasources' argument has to be a list.");
+                throw new DuckityException("The 'datasources' argument "
+                        + "has to be a list.");
             }
         } else {
-            throw new DuckityException("There are invalid arguments, expecting 'datasources'.");
+            throw new DuckityException("There are invalid arguments, "
+                    + "expecting 'datasources'.");
         }
     }
 
     /**
      * Gets the mappings.
-     * 
+     *
      * @return A list of mappings.
      */
     public List<ReaderMapping> getMapping() {

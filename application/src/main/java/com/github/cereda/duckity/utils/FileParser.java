@@ -40,16 +40,16 @@ import java.io.IOException;
 
 /**
  * Parses the file into header and template.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class FileParser {
 
-    private StringBuilder header;
-    private StringBuilder template;
-    private boolean rawTemplate;
+    private final StringBuilder header;
+    private final StringBuilder template;
+    private boolean raw;
 
     /**
      * Constructor.
@@ -57,48 +57,51 @@ public class FileParser {
     public FileParser() {
         header = new StringBuilder();
         template = new StringBuilder();
-        rawTemplate = true;
+        raw = true;
     }
 
     /**
      * Loads the input file.
-     * 
+     *
      * @param filename The input file name.
      * @throws DuckityException Exception is thrown if something bad happened
      * while reading the file.
      */
     public void load(String filename) throws DuckityException {
         try {
-            FileReader fileReader = new FileReader(filename);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String currentLine;
-            boolean readingOnHeader = true;
+            FileReader reader = new FileReader(filename);
+            BufferedReader buffer = new BufferedReader(reader);
+            String line;
+            boolean onheader = true;
             try {
-                while ((currentLine = bufferedReader.readLine()) != null) {
-                    if (currentLine.equalsIgnoreCase("[TEMPLATE]")) {
-                        rawTemplate = false;
-                        readingOnHeader = false;
+                while ((line = buffer.readLine()) != null) {
+                    if (line.equalsIgnoreCase("[TEMPLATE]")) {
+                        raw = false;
+                        onheader = false;
                     } else {
-                        if (readingOnHeader) {
-                            header.append(currentLine).append("\n");
+                        if (onheader) {
+                            header.append(line).append("\n");
                         } else {
-                            template.append(currentLine).append("\n");
+                            template.append(line).append("\n");
                         }
                     }
                 }
-                bufferedReader.close();
-                fileReader.close();
-            } catch (IOException ioException) {
-                throw new DuckityException("An IO error occurred while trying to read from '".concat(filename).concat("'."));
+                buffer.close();
+                reader.close();
+            } catch (IOException nothandled) {
+                throw new DuckityException("An IO error occurred while "
+                        + "trying to read from '".concat(
+                                filename).concat("'."));
             }
-        } catch (FileNotFoundException exception) {
-            throw new DuckityException("File '".concat(filename).concat("' does not exist."));
+        } catch (FileNotFoundException nothandled) {
+            throw new DuckityException("File '".concat(
+                    filename).concat("' does not exist."));
         }
     }
 
     /**
      * Gets the header.
-     * 
+     *
      * @return The header.
      */
     public String getHeader() {
@@ -107,7 +110,7 @@ public class FileParser {
 
     /**
      * Gets the template.
-     * 
+     *
      * @return The template.
      */
     public String getTemplate() {
@@ -120,10 +123,10 @@ public class FileParser {
 
     /**
      * Gets the flag indicating if there are no datasources.
-     * 
+     *
      * @return The flag indicating if there are no datasources.
      */
-    public boolean isRawTemplate() {
-        return rawTemplate;
+    public boolean isRaw() {
+        return raw;
     }
 }

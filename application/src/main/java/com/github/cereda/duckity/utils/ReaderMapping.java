@@ -35,9 +35,9 @@ package com.github.cereda.duckity.utils;
 
 /**
  * Mapping model for datasources.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class ReaderMapping {
@@ -149,4 +149,5 @@ public class ReaderMapping {
     public boolean isIgnoreleadingwhitespace() {
         return ignoreleadingwhitespace;
     }
+    
 }

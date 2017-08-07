@@ -37,16 +37,16 @@ import org.apache.velocity.tools.generic.MathTool;
 
 /**
  * Extends a few methods from MathTool.
- * 
+ *
  * @author Paulo Roberto Massa Cereda
- * @version 1.0
+ * @version 1.1
  * @since 1.0
  */
 public class MyMathTool extends MathTool {
 
     /**
      * Converts the object to float.
-     * 
+     *
      * @param number The object.
      * @return The float value.
      */
@@ -54,12 +54,12 @@ public class MyMathTool extends MathTool {
         if (number == null) {
             return null;
         }
-        return (new Float(number.toString()).floatValue());
+        return (Float.parseFloat(number.toString()));
     }
-    
+
     /**
      * Converts the object to double.
-     * 
+     *
      * @param number The object.
      * @return The double value.
      */
@@ -70,10 +70,10 @@ public class MyMathTool extends MathTool {
         }
         return (new Float(number.toString()).doubleValue());
     }
-    
+
     /**
      * Converts the object to integer.
-     * 
+     *
      * @param number The object.
      * @return The integer value.
      */
@@ -82,8 +82,7 @@ public class MyMathTool extends MathTool {
         if (number == null) {
             return null;
         }
-        return (new Integer(number.toString()).intValue());
+        return (Integer.parseInt(number.toString()));
     }
-    
-    
+
 }
